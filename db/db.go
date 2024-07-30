@@ -10,10 +10,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func DbConnect() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
+var db *sql.DB
+
+func DbConnect() *sql.DB {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
 	}
 
 	databaseUrl := os.Getenv("DATABASE_URL")
@@ -21,33 +22,31 @@ func DbConnect() {
 		log.Fatalf("DATABASE_URL not set in .env file")
 	}
 
-	db, err := sql.Open("postgres", databaseUrl)
-	CheckError(err)
-	defer db.Close()
+	var openErr error
+	if db, openErr = sql.Open("postgres", databaseUrl); openErr != nil {
+		log.Fatalf("Error opening database connection: %v", openErr)
+	}
 
-	err = db.Ping()
-	CheckError(err)
+	if pingErr := db.Ping(); pingErr != nil {
+		log.Fatalf("Error connecting to database: %v", pingErr)
+	}
+
 	fmt.Println("Connected!")
 
-	// QueryDB(db)
+	return db
 }
 
-// func QueryDB(db *sql.DB) {
-// 	query := `SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'`
-// 	rows, err := db.Query(query)
-// 	CheckError(err)
-// 	defer rows.Close()
-// 	fmt.Println("Tables:")
-// 	for rows.Next() {
-// 		var tableName string
-// 		err := rows.Scan(&tableName)
-// 		CheckError(err)
-// 		fmt.Println(tableName)
-// 	}
-// 	err = rows.Err()
-// 	CheckError(err)
-// }
+func RegUser(Username, Email string) error {
+	conn := DbConnect()
+	defer conn.Close()
 
+	query := `INSERT INTO users (username, email ) VALUES ($1, $2)`
+	if _, execErr := conn.Exec(query, Username, Email); execErr != nil {
+		return execErr
+	}
+
+	return nil
+}
 func CheckError(err error) {
 	if err != nil {
 		panic(err)
