@@ -1,4 +1,4 @@
-# API for Static Chat services
+# API for Static services
 
 ### Installation
 ```bash
