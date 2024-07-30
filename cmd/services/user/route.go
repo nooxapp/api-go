@@ -7,11 +7,13 @@ import (
 	"static-api/helpers"
 
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserPayload struct {
 	Username string `json:"Username"`
 	Email    string `json:"Email"`
+	Password string `json:"Password"`
 }
 
 type Handler struct {
@@ -39,10 +41,15 @@ func (h *Handler) handleReg(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+		return
+	}
 
 	fmt.Printf("User registered: %+v", payload)
-	//yippie I need to figure out how to encrypt passwords
-	err = db.RegUser(payload.Username, payload.Email)
+
+	err = db.RegUser(payload.Username, payload.Email, string(hashedPassword))
 	if err != nil {
 		http.Error(w, "Failed to register user", http.StatusInternalServerError)
 		return
