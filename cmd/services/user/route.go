@@ -1,7 +1,7 @@
 package user
 
 import (
-	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -19,6 +19,10 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
+	//Read Request Body
+	body, _ := io.ReadAll(r.Body)
+	defer r.Body.Close()
+	println(string(body))
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"message": "Login Route"})
+	w.Write([]byte(`{"message": "Request body received"}`))
 }

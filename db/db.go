@@ -29,12 +29,24 @@ func DbConnect() {
 	CheckError(err)
 	fmt.Println("Connected!")
 
-	QueryDB(db)
+	// QueryDB(db)
 }
 
-func QueryDB(db *sql.DB) {
-
-}
+// func QueryDB(db *sql.DB) {
+// 	query := `SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'`
+// 	rows, err := db.Query(query)
+// 	CheckError(err)
+// 	defer rows.Close()
+// 	fmt.Println("Tables:")
+// 	for rows.Next() {
+// 		var tableName string
+// 		err := rows.Scan(&tableName)
+// 		CheckError(err)
+// 		fmt.Println(tableName)
+// 	}
+// 	err = rows.Err()
+// 	CheckError(err)
+// }
 
 func CheckError(err error) {
 	if err != nil {
