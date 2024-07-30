@@ -27,8 +27,13 @@ func DbConnect() {
 
 	err = db.Ping()
 	CheckError(err)
-
 	fmt.Println("Connected!")
+
+	QueryDB(db)
+}
+
+func QueryDB(db *sql.DB) {
+
 }
 
 func CheckError(err error) {
