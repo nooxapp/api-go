@@ -18,4 +18,5 @@ JWT_SECRET=""
 ```
 http://localhost:9000/register
 http://localhost:9000/login
+http://localhost:9000/msg/sendmessage
 ```
