@@ -2,7 +2,7 @@
 
 ### Installation
 ```bash
-git clone https://snowyluv/static-api.git 
+git clone https://github.com/snowyluv/Static-API.git 
 cd static-api
 cp .env.example .env
 go build
