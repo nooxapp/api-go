@@ -23,6 +23,6 @@ func (s *APIServer) Run() error {
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 	userService := user.NewHandler()
 	userService.RegisterRoutes(subrouter)
-	fmt.Println("Listening on http://localhost" + s.addr + "/api/v1")
+	fmt.Println("Listening on http://localhost" + s.addr + "/api/v1/")
 	return http.ListenAndServe(s.addr, router)
 }

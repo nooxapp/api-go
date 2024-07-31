@@ -3,18 +3,13 @@ package user
 import (
 	"fmt"
 	"net/http"
-	"static-api/db"
 	"static-api/helpers"
+	"static-api/helpers/auth"
+	"static-api/helpers/types"
 
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 )
-
-type UserPayload struct {
-	Username string `json:"Username"`
-	Email    string `json:"Email"`
-	Password string `json:"Password"`
-}
 
 type Handler struct {
 }
@@ -29,13 +24,29 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
-	var payload UserPayload
-	helpers.ReadJSON(r, &payload)
-	fmt.Println(payload)
+	var payload types.UserPayload
+	err := helpers.ReadJSON(r, &payload)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+	user, err := auth.AuthUser(payload.Email, payload.Password)
+	if err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+	token, err := auth.GenerateJWT(user.Email)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(fmt.Sprintf(`{"token": "%s"}`, token)))
 }
 
 func (h *Handler) handleReg(w http.ResponseWriter, r *http.Request) {
-	var payload UserPayload
+	var payload types.UserPayload
 	err := helpers.ReadJSON(r, &payload)
 	if err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
@@ -49,7 +60,7 @@ func (h *Handler) handleReg(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("User registered: %+v", payload)
 
-	err = db.RegUser(payload.Username, payload.Email, string(hashedPassword))
+	err = auth.RegUser(payload.Username, payload.Email, string(hashedPassword))
 	if err != nil {
 		http.Error(w, "Failed to register user", http.StatusInternalServerError)
 		return

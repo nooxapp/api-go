@@ -35,27 +35,6 @@ func DbConnect() *sql.DB {
 
 	return db
 }
-
-func RegUser(Username, Email, Password string) error {
-	conn := DbConnect()
-	defer conn.Close()
-
-	query := `INSERT INTO users (username, email, password ) VALUES ($1, $2, $3)`
-	if _, execErr := conn.Exec(query, Username, Email, Password); execErr != nil {
-		return execErr
-	}
-
-	return nil
-}
-func AuthUser(Email, Password string) error {
-	conn := DbConnect()
-	defer conn.Close()
-	query := `SELECT * FROM users WHERE email = $1 AND password = $2`
-	if _, execErr := conn.Exec(query, Email, Password); execErr != nil {
-		return execErr
-	}
-	return nil
-}
 func CheckError(err error) {
 	if err != nil {
 		panic(err)
