@@ -3,6 +3,7 @@ package auth
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
 	"os"
 	"static-api/db"
 	"time"
@@ -93,4 +94,33 @@ func GenerateJWT(Email string) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func GetSession(r *http.Request) (*Claims, error) {
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			return nil, fmt.Errorf("no token found")
+		}
+		return nil, err
+	}
+	tokenStr := cookie.Value
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return nil, fmt.Errorf("invalid token signature")
+		}
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	return claims, nil
 }

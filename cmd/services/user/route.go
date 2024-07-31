@@ -11,6 +11,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type UserPayload struct {
+	Username string `json:"Username"`
+	Email    string `json:"Email"`
+	Password string `json:"Password"`
+}
+
 type Handler struct {
 }
 
@@ -30,14 +36,18 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
+
+	// Verify user credentials
 	user, err := auth.AuthUser(payload.Email, payload.Password)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
+
+	// Generate JWT token
 	token, err := auth.GenerateJWT(user.Email)
 	if err != nil {
-		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to generate token: %v", err), http.StatusInternalServerError)
 		return
 	}
 
