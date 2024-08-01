@@ -58,28 +58,29 @@ func RegUser(Username, Email, Password string) error {
 	return nil
 }
 
-func AuthUser(Email, Password string) (*User, error) {
+func AuthUser(Email, Password string) (*User, int, error) {
 	conn := db.DbConnect()
 	defer conn.Close()
 
 	var user User
-	query := `SELECT username, email, password FROM users WHERE email = $1`
-	err := conn.QueryRow(query, Email).Scan(&user.Username, &user.Email, &user.Password)
+	var userID int
+	query := `SELECT id, username, email, password FROM users WHERE email = $1`
+	err := conn.QueryRow(query, Email).Scan(&userID, &user.Username, &user.Email, &user.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("invalid credentials")
+			return nil, 0, fmt.Errorf("invalid credentials")
 		}
-		return nil, err
+		return nil, 0, err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(Password))
 	if err != nil {
-		return nil, fmt.Errorf("invalid credentials")
+		return nil, 0, fmt.Errorf("invalid credentials")
 	}
 
-	return &user, nil
+	return &user, userID, nil
 }
 
-func GenerateJWT(Email string) (string, error) {
+func GenerateJWT(userID int, Email string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
 		Email: Email,
@@ -87,12 +88,20 @@ func GenerateJWT(Email string) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
 		return "", err
 	}
+	conn := db.DbConnect()
+	defer conn.Close()
+
+	insertSessionQuery := `INSERT INTO users_session (token, expires_at, user_id) VALUES ($1, $2, $3)`
+	_, execErr := conn.Exec(insertSessionQuery, tokenString, expirationTime, userID)
+	if execErr != nil {
+		return "", execErr
+	}
+
 	return tokenString, nil
 }
 

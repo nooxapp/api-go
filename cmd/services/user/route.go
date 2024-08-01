@@ -36,16 +36,12 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
-
-	// Verify user credentials
-	user, err := auth.AuthUser(payload.Email, payload.Password)
+	user, userID, err := auth.AuthUser(payload.Email, payload.Password)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
-
-	// Generate JWT token
-	token, err := auth.GenerateJWT(user.Email)
+	token, err := auth.GenerateJWT(userID, user.Email)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to generate token: %v", err), http.StatusInternalServerError)
 		return
