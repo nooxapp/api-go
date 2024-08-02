@@ -16,8 +16,8 @@ CREATE TABLE friends (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     friend_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (user_id, friend_id) 
-)
+    UNIQUE (user_id, friend_id)
+);
 
 CREATE TABLE user_friend_requests (
     id SERIAL PRIMARY KEY,
@@ -25,4 +25,4 @@ CREATE TABLE user_friend_requests (
     receiver_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     status TEXT DEFAULT 'pending',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-)
+);
