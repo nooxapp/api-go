@@ -1,5 +1,5 @@
 # TODO
 
-- [ X ] Auth
+- [X] Auth
 - Figure out how to implement friend requests properly
 - Implement Messages
