@@ -1,9 +1,9 @@
-# API for Static services
+# API for noox services
 
 ### Installation
 ```bash
 git clone https://github.com/snowyluv/Static-API.git 
-cd static-api
+cd api-go
 cp .env.example .env
 go build
 ```

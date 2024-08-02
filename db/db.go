@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -10,9 +9,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+var DB *sql.DB
 
-func DbConnect() *sql.DB {
+func Init() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
@@ -23,18 +22,18 @@ func DbConnect() *sql.DB {
 	}
 
 	var openErr error
-	if db, openErr = sql.Open("postgres", databaseUrl); openErr != nil {
+	DB, openErr = sql.Open("postgres", databaseUrl)
+	if openErr != nil {
 		log.Fatalf("Error opening database connection: %v", openErr)
 	}
 
-	if pingErr := db.Ping(); pingErr != nil {
+	if pingErr := DB.Ping(); pingErr != nil {
 		log.Fatalf("Error connecting to database: %v", pingErr)
 	}
 
-	fmt.Println("Connected!")
-
-	return db
+	log.Println("Connected to DB")
 }
+
 func CheckError(err error) {
 	if err != nil {
 		panic(err)

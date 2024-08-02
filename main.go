@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	db.DbConnect()
+	db.Init()
 
 	server := api.NewAPIServer(":9000", nil)
 	if err := server.Run(); err != nil {

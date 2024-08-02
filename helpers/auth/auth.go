@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"static-api/db"
+	"static-api/helpers/types"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -15,19 +16,12 @@ import (
 var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
 type Claims struct {
-	Email string `json:"email"`
+	ID int `json:"id"`
 	jwt.RegisteredClaims
 }
 
-type User struct {
-	Username string
-	Email    string
-	Password string
-}
-
 func RegUser(Username, Email, Password string) error {
-	conn := db.DbConnect()
-	defer conn.Close()
+	conn := db.DB
 
 	var usernameCount int
 	checkUsernameQuery := `SELECT COUNT(*) FROM users WHERE username = $1`
@@ -58,11 +52,10 @@ func RegUser(Username, Email, Password string) error {
 	return nil
 }
 
-func AuthUser(Email, Password string) (*User, int, error) {
-	conn := db.DbConnect()
-	defer conn.Close()
+func AuthUser(Email, Password string) (*types.UserPayload, int, error) {
+	conn := db.DB
 
-	var user User
+	var user types.UserPayload
 	var userID int
 	query := `SELECT id, username, email, password FROM users WHERE email = $1`
 	err := conn.QueryRow(query, Email).Scan(&userID, &user.Username, &user.Email, &user.Password)
@@ -80,10 +73,10 @@ func AuthUser(Email, Password string) (*User, int, error) {
 	return &user, userID, nil
 }
 
-func GenerateJWT(userID int, Email string) (string, error) {
+func GenerateJWT(userID int) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
-		Email: Email,
+		ID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
@@ -93,8 +86,7 @@ func GenerateJWT(userID int, Email string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	conn := db.DbConnect()
-	defer conn.Close()
+	conn := db.DB
 
 	insertSessionQuery := `INSERT INTO users_session (token, expires_at, user_id) VALUES ($1, $2, $3)`
 	_, execErr := conn.Exec(insertSessionQuery, tokenString, expirationTime, userID)

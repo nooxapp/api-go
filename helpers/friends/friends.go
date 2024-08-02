@@ -1,0 +1,5 @@
+package friends
+
+func SendFriendRequest() {
+
+}

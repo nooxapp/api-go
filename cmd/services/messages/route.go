@@ -1,6 +1,7 @@
 package messages
 
 import (
+	"fmt"
 	"net/http"
 	"static-api/helpers"
 	"static-api/helpers/auth"
@@ -25,6 +26,6 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	//fmt.Fprintf(w, "Hello, %s!", claims.Email)
-	helpers.WriteJSON(w, "Hi "+claims.Email)
+	message := fmt.Sprintf("Hi %d", claims.ID)
+	helpers.WriteJSON(w, message)
 }

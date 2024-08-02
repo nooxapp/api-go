@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"static-api/cmd/services/friends"
 	"static-api/cmd/services/messages"
 	"static-api/cmd/services/user"
 
@@ -25,6 +26,8 @@ func (s *APIServer) Run() error {
 	userService := user.NewHandler()
 	userService.RegisterRoutes(subrouter)
 	messageService := messages.NewHandler()
+	friendService := friends.NewHandler()
+	friendService.RegisterRoutes(subrouter)
 	messageService.RegisterRoutes(subrouter)
 	fmt.Println("Listening on http://localhost" + s.addr + "/api/v1/")
 	return http.ListenAndServe(s.addr, router)
