@@ -1,4 +1,4 @@
-# API for noox services
+<img src="/assets/banner.png" />
 
 ### Installation
 ```bash

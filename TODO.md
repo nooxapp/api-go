@@ -1,5 +1,6 @@
 # TODO
 
 - [X] Auth
-- Figure out how to implement friend requests properly
+- [X] Figure out how to implement friend requests properly
+- Accept/Decline friend requests
 - Implement Messages

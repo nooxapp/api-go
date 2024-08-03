@@ -1,4 +1,4 @@
-package friendrequesthelper
+package friends
 
 import (
 	"database/sql"

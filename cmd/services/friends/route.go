@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"static-api/helpers"
 	"static-api/helpers/auth"
-	friendrequesthelper "static-api/helpers/friends"
+	"static-api/helpers/friends"
 	"static-api/helpers/types"
 
 	"github.com/gorilla/mux"
@@ -19,6 +19,19 @@ func NewHandler() *Handler {
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/sendfr", h.HandleFriendRequest).Methods("POST")
+	router.HandleFunc("/acceptfr/{username}", h.HandleAcceptFriendRequest).Methods("POST")
+}
+
+func (h *Handler) HandleAcceptFriendRequest(w http.ResponseWriter, r *http.Request) {
+	_, err := auth.GetSession(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	// TODO: implement the logic to accept a friend request
+	vars := mux.Vars(r)
+	username := vars["username"]
+	friends.AcceptFriendRequest(username)
 }
 
 func (h *Handler) HandleFriendRequest(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +53,7 @@ func (h *Handler) HandleFriendRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = friendrequesthelper.SendFriendRequest(r, payload.Username, claims.ID)
+	err = friends.SendFriendRequest(r, payload.Username, claims.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
