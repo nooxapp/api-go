@@ -23,6 +23,6 @@ CREATE TABLE user_friend_requests (
     id SERIAL PRIMARY KEY,
     sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     receiver_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    status TEXT DEFAULT 'pending',
+    status friend_request_status DEFAULT 'pending',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

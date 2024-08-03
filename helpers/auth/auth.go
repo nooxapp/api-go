@@ -101,7 +101,7 @@ func GetSession(r *http.Request) (*Claims, error) {
 	cookie, err := r.Cookie("token")
 	if err != nil {
 		if err == http.ErrNoCookie {
-			return nil, fmt.Errorf("no token found")
+			return nil, fmt.Errorf("Unauthorized")
 		}
 		return nil, err
 	}
