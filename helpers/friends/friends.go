@@ -26,3 +26,24 @@ func SendFriendRequest(r *http.Request, receiverUsername string, senderID int) e
 
 	return nil
 }
+
+func GetFriends(userID int) []int {
+	conn := db.DB
+	rows, err := conn.Query("SELECT friend_id FROM friends WHERE user_id = $1", userID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var friends []int
+	for rows.Next() {
+		var friendID int
+		err := rows.Scan(&friendID)
+		if err != nil {
+			continue
+		}
+		friends = append(friends, friendID)
+	}
+
+	return friends
+}
