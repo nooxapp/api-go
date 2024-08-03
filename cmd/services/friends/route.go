@@ -23,15 +23,26 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) HandleAcceptFriendRequest(w http.ResponseWriter, r *http.Request) {
-	_, err := auth.GetSession(r)
+	claims, err := auth.GetSession(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	// TODO: implement the logic to accept a friend request
+
 	vars := mux.Vars(r)
 	username := vars["username"]
-	friends.AcceptFriendRequest(username)
+
+	err = friends.AcceptFriendRequest(username, claims.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"success": true,
+		"message": "Friend request accepted successfully",
+	}
+	helpers.WriteJSON(w, response)
 }
 
 func (h *Handler) HandleFriendRequest(w http.ResponseWriter, r *http.Request) {
