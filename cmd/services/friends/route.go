@@ -22,7 +22,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) HandleFriendRequest(w http.ResponseWriter, r *http.Request) {
-	_, err := auth.GetSession(r)
+	claims, err := auth.GetSession(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
@@ -40,7 +40,7 @@ func (h *Handler) HandleFriendRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = friendrequesthelper.SendFriendRequest(r, payload.Username)
+	err = friendrequesthelper.SendFriendRequest(r, payload.Username, claims.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
