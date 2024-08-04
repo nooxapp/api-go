@@ -88,7 +88,7 @@ func GenerateJWT(userID int) (string, error) {
 	}
 	conn := db.DB
 
-	insertSessionQuery := `INSERT INTO users_session (token, expires_at, user_id) VALUES ($1, $2, $3)`
+	insertSessionQuery := `INSERT INTO sessions (token, expires_at, user_id) VALUES ($1, $2, $3)`
 	_, execErr := conn.Exec(insertSessionQuery, tokenString, expirationTime, userID)
 	if execErr != nil {
 		return "", execErr
